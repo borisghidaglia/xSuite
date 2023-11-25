@@ -1,12 +1,12 @@
 package main
 
 import (
-	se "github.com/multiversx/mx-chain-vm-v1_4-go/scenarioexec"
-	mj "github.com/multiversx/mx-chain-vm-v1_4-go/scenarios/model"
+	mj "github.com/multiversx/mx-chain-scenario-go/model"
+	am "github.com/multiversx/mx-chain-vm-go/scenarioexec"
 )
 
 type Executor struct {
-	vmTestExecutor    		*se.VMTestExecutor
+	vmTestExecutor    		*am.VMTestExecutor
 	txResps								map[string]interface{}
 	txProcessStatusResps  map[string]interface{}
 	txCounter							uint64
@@ -14,7 +14,7 @@ type Executor struct {
 }
 
 func NewExecutor() (*Executor, error) {
-	vmTestExecutor, err := se.NewVMTestExecutor()
+	vmTestExecutor, err := am.NewVMTestExecutor()
 	if err != nil {
 		return nil, err
 	}

@@ -12,8 +12,8 @@ import (
 
 	"github.com/go-chi/chi"
 	logger "github.com/multiversx/mx-chain-logger-go"
-	worldmock "github.com/multiversx/mx-chain-vm-v1_4-go/mock/world"
-	mj "github.com/multiversx/mx-chain-vm-v1_4-go/scenarios/model"
+	mj "github.com/multiversx/mx-chain-scenario-go/model"
+	worldmock "github.com/multiversx/mx-chain-vm-go/mock/world"
 )
 
 func (ae *Executor) HandleTransactionSend(r *http.Request) (interface{}, error) {
@@ -53,7 +53,7 @@ func (ae *Executor) HandleTransactionSend(r *http.Request) (interface{}, error) 
 			GasLimit: mj.JSONUint64{Value: rawTx.GasLimit},
 		},
 	}
-	sender, err := addressConverter.Decode(rawTx.Sender)
+	sender, err := bech32Decode(rawTx.Sender)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (ae *Executor) HandleTransactionSend(r *http.Request) (interface{}, error) 
 	if senderAccount.Nonce != rawTx.Nonce {
 		return nil, errors.New("invalid nonce")
 	}
-	receiver, err := addressConverter.Decode(rawTx.Receiver)
+	receiver, err := bech32Decode(rawTx.Receiver)
 	if err != nil {
 		return nil, err
 	}
@@ -193,11 +193,15 @@ func (ae *Executor) HandleTransactionSend(r *http.Request) (interface{}, error) 
 			jData += "@" + hex.EncodeToString(data)
 		}
 		if tx.Tx.Type == mj.ScDeploy {
+			bechAddress, err := bech32Encode(uint64ToBytesAddress(ae.scCounter, true))
+			if err != nil {
+				return nil, err
+			}
 			logs = map[string]interface{}{
 				"events": []interface{}{
 					map[string]interface{}{
 						"identifier": "SCDeploy",
-						"address": addressConverter.Encode(uint64ToBytesAddress(ae.scCounter, true)),
+						"address": bechAddress,
 					},
 					map[string]interface{}{
 						"identifier": "writeLog",
